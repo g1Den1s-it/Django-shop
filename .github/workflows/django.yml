@@ -46,11 +46,20 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
         aws-region: ${{ env.AWS_REGION_NAME }}
         
-    - name: Deploy to EC2 instans
+    - name: Deploy the retrieved package to EC2 instance
       run: |
-        aws ec2 start-instances --instance-ids ${{secrets.INST_ID}}
-        aws s3 cp s3://${{env.EC_PACKAGE_S3_BUCKET_NAME}}/${{env.DEPLOY_PACKAGE_NAME}} . --recursive
-        
+        sudo apt-get update
+        sudo apt-get install -y unzip
+        unzip ${{ env.DEPLOY_PACKAGE_NAME }}
+        cd django_shop
+        pip install -r requirements.txt
+        python manage.py makemigrations
+        python manage.py migrate
+        python manage.py runserver 0.0.0.0:8000
+
+    - name: Done
+      run: echo "Done"
+
 
     
     
