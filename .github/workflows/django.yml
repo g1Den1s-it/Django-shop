@@ -1,32 +1,35 @@
-name: Django CI
+name: CI-CD-Pipeline-to-aws
+env:
+  EC_PACKAGE_S3_BUCKET_NAME : "django-applications-bucket-packages"
+  EC_APPLICATION_NAME: "Django-shop-Instance"
+  EC_ENVIRONMENT_NAME:  "Django-env"
+  DEPLOY_PACKAGE_NAME: "django_shop_${{ github.sha }}.zip"
+  AWS_REGION_NAME: "eu-north-1"
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  ci_part:
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.10.6]
-
+    
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+    - name: Git clone repo
+      uses: actions/checkout@v1
+    
+    - name: Craete ZIP package
+      run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x *.git*
+    
+    - name: Config AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Run migrations
-      run: |
-        python manage.py makemigrations
-        python manage.py migrate
-    - name: Run test
-      run: |
-        python manage.py test
+        aws-access-key-id: ${{secrets.AWS_ACCESS_KEY}}
+        aws-secret-access-key: ${{ secret.AWS_SECRET_KEY }}
+        aws-region: ${{ env.AWS_REGION_NAME }}
+    
+    - name: copy package to s3 bucket
+      run: aws s3 cp ${{env.DEPLOY_PACKAGE_NAME}}  s3://${{env.EC_PACKAGE_S3_BUCKET_NAME}}
+
+    - name: Done
+      run: echo "Done"
