@@ -48,8 +48,9 @@ jobs:
         
     - name: Deploy to EC2 instans
       run: |
+        aws ec2 start-instances --instance-ids ${{secrets.INST_ID}}
         aws s3 cp s3://${{env.EC_PACKAGE_S3_BUCKET_NAME}}/${{env.DEPLOY_PACKAGE_NAME}} . --recursive
-        touch text.txt
+        
 
     
     
