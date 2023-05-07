@@ -46,14 +46,10 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
         aws-region: ${{ env.AWS_REGION_NAME }}
         
-    - name: Transfer package to EC2 instance
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.INST_ID }}
-        username: ${{ secrets.EC2_INSTANCE_USERNAME }}
-        key: ${{ secrets.SSH_EC2}}
-        source: ${{ env.DEPLOY_PACKAGE_NAME }}
-        target: ~/project/django
+    - name: SSH 
+      run: |
+        ssh -i ${{secrets.SHH_EC2}} ${{secrets.EC2_INSTANCE_USERNAME}}@${{secrets.IPV4}} "aws s3 cp s3://${{env.EC_PACKAGE_S3_BUCKET_NAME}}/${{env.DEPLOY_PACKAGE_NAME}} ."
+          
       
     - name: Done
       run: echo "Done"
