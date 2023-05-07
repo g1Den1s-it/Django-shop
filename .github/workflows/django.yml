@@ -48,7 +48,8 @@ jobs:
         
     - name: Deploy to EC2 instans
       run: |
-        aws s3 cp s3://${{env.EC_PACKAGE_S3_BUCKET_NAME}}/${{env.DEPLOY_PACKAGE_NAME}} .
+        aws s3 cp s3://${{env.EC_PACKAGE_S3_BUCKET_NAME}}/${{env.DEPLOY_PACKAGE_NAME}} /home/ubuntu/
+
     
     
     
